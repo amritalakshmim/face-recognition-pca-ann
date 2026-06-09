@@ -1,5 +1,5 @@
 from src.data_loader import FaceDataLoader
-from src.utils import show_sample_faces
+from src.utils import (show_sample_faces, show_eigenfaces)
 from src.pca import PCAFaceRecognizer
 
 
@@ -70,3 +70,7 @@ eigenfaces = (
 
 print("\nEigenfaces Shape:")
 print(eigenfaces.shape)
+
+show_eigenfaces(
+    eigenfaces
+)

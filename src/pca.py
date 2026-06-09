@@ -53,7 +53,18 @@ class PCAFaceRecognizer:
             covariance_matrix
         )
 
-        return eigenvalues, eigenvectors
+        eigenvalues = np.real(
+            eigenvalues
+        )
+
+        eigenvectors = np.real(
+            eigenvectors
+        )
+
+        return (
+            eigenvalues, 
+            eigenvectors
+        )
     
     def select_top_k_components(
             self,

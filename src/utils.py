@@ -39,3 +39,45 @@ def show_sample_faces(
 
     plt.tight_layout()
     plt.show()
+
+def show_eigenfaces(
+        eigenfaces,
+        image_size=(100, 100),
+        rows=2,
+        cols=5
+):
+    
+    plt.figure(figsize=(12, 6))
+
+    total_faces = rows * cols
+
+    for i in range(total_faces):
+        eigenface = (
+            eigenfaces[:, i]
+            .reshape(image_size)
+        )
+
+        plt.subplot(
+            rows,
+            cols,
+            i + 1
+        )
+
+        plt.imshow(
+            eigenface,
+            cmap="gray"
+        )
+
+        plt.title(
+            f"Eigenface {i+1}"
+        )
+
+        plt.axis("off")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        "outputs/eigenfaces/eigenfaces.png"
+    )
+
+    plt.show()
