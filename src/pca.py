@@ -120,3 +120,14 @@ class PCAFaceRecognizer:
         ).T
 
         return eigenfaces
+    
+    def generate_face_signatures(
+            self,
+            eigenfaces
+    ):
+        face_signatures = np.dot(
+            eigenfaces.T,
+            self.mean_centered_faces
+        )
+
+        return face_signatures

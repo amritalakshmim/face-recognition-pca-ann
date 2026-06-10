@@ -74,3 +74,12 @@ print(eigenfaces.shape)
 show_eigenfaces(
     eigenfaces
 )
+
+face_signatures = (
+    pca.generate_face_signatures(
+        eigenfaces
+    )
+)
+
+print("\nFace Signatures Shape:")
+print(face_signatures.shape)
