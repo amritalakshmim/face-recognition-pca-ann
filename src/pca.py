@@ -49,17 +49,13 @@ class PCAFaceRecognizer:
             covariance_matrix
     ):
         
-        eigenvalues, eigenvectors = np.linalg.eig(
+        U, S, Vt = np.linalg.svd(
             covariance_matrix
         )
 
-        eigenvalues = np.real(
-            eigenvalues
-        )
+        eigenvalues = S
 
-        eigenvectors = np.real(
-            eigenvectors
-        )
+        eigenvectors = U
 
         return (
             eigenvalues, 
@@ -80,44 +76,32 @@ class PCAFaceRecognizer:
             eigenvectors[:,sorted_indices]
         )
 
-        selected_vectors = (
-            sorted_eigenvectors[:, :self.k]
+        top_k_eigenvectors = (
+            sorted_eigenvectors[
+                :, :self.k
+            ]
         )
 
-        feature_vectors = np.dot(
-            self.mean_centered_faces,
-            selected_vectors
-        )
-
-        return feature_vectors
+        return top_k_eigenvectors
     
     def generate_eigenfaces(
             self,
-            feature_vectors
+            top_k_eigenvectors
     ):
-        eigenfaces = []
+        eigenfaces = np.dot(
+            top_k_eigenvectors.T,
+            self.mean_centered_faces.T
+        )
 
-        for i in range(
-            feature_vectors.shape[1]
-        ):
-            eigenface = (
-                feature_vectors[:, i]
-            )
+        norms = np.linalg.norm(
+            eigenfaces,
+            axis=0,
+            keepdims=True
+        )
 
-            normalized_face = (
-                eigenface / 
-                np.linalg.norm(
-                    eigenface
-                )
-            )
-
-            eigenfaces.append(
-                normalized_face
-            )
-
-        eigenfaces = np.array(
-            eigenfaces
-        ).T
+        eigenfaces = (
+            eigenfaces / norms
+        )
 
         return eigenfaces
     
@@ -126,7 +110,7 @@ class PCAFaceRecognizer:
             eigenfaces
     ):
         face_signatures = np.dot(
-            eigenfaces.T,
+            eigenfaces,
             self.mean_centered_faces
         )
 

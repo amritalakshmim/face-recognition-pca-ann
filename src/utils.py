@@ -53,7 +53,7 @@ def show_eigenfaces(
 
     for i in range(total_faces):
         eigenface = (
-            eigenfaces[:, i]
+            eigenfaces[i, :]
             .reshape(image_size)
         )
 
