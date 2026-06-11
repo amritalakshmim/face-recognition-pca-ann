@@ -45,5 +45,6 @@ def split_dataset(
         X_train,
         X_test,
         y_train,
-        y_test
+        y_test,
+        scaler
     )

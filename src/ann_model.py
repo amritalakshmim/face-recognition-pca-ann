@@ -1,6 +1,7 @@
 from sklearn.neural_network import (
     MLPClassifier
 )
+import numpy as np
 
 
 class ANNFaceClassifier:
@@ -58,3 +59,34 @@ class ANNFaceClassifier:
         )
 
         return accuracy
+    
+    def predict_with_unknown(
+            self,
+            X_test,
+            threshold=0.75
+    ):
+        probabilities = (
+            self.model.predict_proba(
+                X_test
+            )
+        )
+
+        predictions = []
+
+        for prob in probabilities:
+            max_prob = np.max(prob)
+            if max_prob < threshold:
+                predictions.append(
+                    "Not Enrolled"
+                )
+
+            else:
+                predicted_class = (
+                    np.argmax(prob)
+                )
+
+                predictions.append(
+                    predicted_class
+                )
+
+        return predictions

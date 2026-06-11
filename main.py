@@ -8,9 +8,16 @@ from src.ann_model import (
 from src.evaluate import (
     plot_accuracy_vs_k
 )
+from src.test import (
+    test_imposters
+)
 
 
 
+print(
+    "\nTraining PCA + ANN "
+    "Face Recognition System..."
+)
 
 dataset_path = "dataset/faces"
 
@@ -20,10 +27,9 @@ face_database, labels, label_map = (
     loader.load_dataset()
 )
 
-print("Face Database Shape:")
-print(face_database.shape)
+pca = PCAFaceRecognizer(k=75)
 
-pca = PCAFaceRecognizer(k=100)
+pca.label_map = label_map
 
 mean_face = pca.compute_mean_face(
     face_database
@@ -35,31 +41,15 @@ mean_centered_faces = (
     )
 )
 
-print("\nMean Face Shape:")
-print(mean_face.shape)
-
-print("\nMean Centered Face Shape:")
-print(mean_centered_faces.shape)
-
-
 covariance_matrix = (
     pca.compute_covariance_matrix()
 )
-
-print("\nCovariance Matrix Shape:")
-print(covariance_matrix.shape)
 
 eigenvalues, eigenvectors = (
     pca.compute_eigen_components(
         covariance_matrix
     )
 )
-
-print("\nEigenvalues Shape:")
-print(eigenvalues.shape)
-
-print("\nEigenvectors Shape:")
-print(eigenvectors.shape)
 
 top_k_eigenvectors = (
     pca.select_top_k_components(
@@ -68,17 +58,11 @@ top_k_eigenvectors = (
     )
 )
 
-print("\nTop K Eigenvectors Shape:")
-print(top_k_eigenvectors.shape)
-
 eigenfaces = (
     pca.generate_eigenfaces(
         top_k_eigenvectors
     )
 )
-
-print("\nEigenfaces Shape:")
-print(eigenfaces.shape)
 
 show_eigenfaces(
     eigenfaces
@@ -90,51 +74,28 @@ face_signatures = (
     )
 )
 
-print("\nFace Signatures Shape:")
-print(face_signatures.shape)
-
-print("\nFace Signature Sample:")
-print(face_signatures[:, 0][:10])
-
 (
     X_train,
     X_test,
     y_train,
-    y_test
+    y_test,
+    scaler
 ) = split_dataset(
     face_signatures,
     labels
 )
 
-print("\nTraining Data Shape:")
-print(X_train.shape)
-
-print("\nTesting Data Shape:")
-print(X_test.shape)
-
-print("\nTraining Labels Shape:")
-print(y_train.shape)
-
-print("\nTesting Labels Shape:")
-print(y_test.shape)
-
 import numpy as np
 
-print("\nTraining Label Counts:")
 unique, counts = np.unique(
     y_train,
     return_counts=True
 )
 
-print(dict(zip(unique, counts)))
-
-print("\nTesting Label Counts:")
 unique, counts = np.unique(
     y_test,
     return_counts=True
 )
-
-print(dict(zip(unique, counts)))
 
 
 ann_classifier = (
@@ -159,8 +120,18 @@ accuracy = (
     )
 )
 
-print("\nModel Accuracy:")
-print(f"{accuracy * 100:.2f}%")
+print("\nBest Model Results")
+print("-" * 30)
+
+print(
+    f"Best k Value: "
+    f"{75}"
+)
+
+print(
+    f"Model Accuracy: "
+    f"{accuracy * 100:.2f}%"
+)
 
 k_values = [
     10,
@@ -176,9 +147,14 @@ k_values = [
 
 accuracies = []
 
-for k in k_values:
+print(
+    "\nRunning Accuracy "
+    "vs k Experiment..."
+)
 
-    print(f"\nRunning for k = {k}")
+print("-" * 30)
+
+for k in k_values:
 
     pca = PCAFaceRecognizer(
         k=k
@@ -230,7 +206,8 @@ for k in k_values:
         X_train,
         X_test,
         y_train,
-        y_test
+        y_test,
+        scaler
     ) = split_dataset(
         face_signatures,
         labels
@@ -261,24 +238,28 @@ for k in k_values:
     )
 
     print(
-        f"Accuracy: "
-        f"{accuracy_percent:.2f}%"
-    )
-
-
-print("\nFinal Results:")
-
-for k, accuracy in zip(
-    k_values,
-    accuracies
-):
-
-    print(
-        f"k={k}: "
-        f"{accuracy:.2f}%"
-    )
+    f"k = {k:<3} "
+    f"→ "
+    f"{accuracy_percent:.2f}%"
+)
 
 plot_accuracy_vs_k(
     k_values,
     accuracies
+)
+
+test_imposters(
+
+    imposter_folder=
+    "dataset/imposters",
+
+    pca=pca,
+
+    eigenfaces=
+    eigenfaces,
+
+    scaler=scaler,
+
+    ann_classifier=
+    ann_classifier
 )
