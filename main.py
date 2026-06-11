@@ -1,175 +1,92 @@
-from src.data_loader import FaceDataLoader
-from src.utils import (show_sample_faces, show_eigenfaces)
-from src.pca import PCAFaceRecognizer
-from src.train import split_dataset
+from src.data_loader import (
+    FaceDataLoader
+)
+
+from src.utils import (
+    show_eigenfaces
+)
+
+from src.pca import (
+    PCAFaceRecognizer
+)
+
+from src.train import (
+    split_dataset
+)
+
 from src.ann_model import (
     ANNFaceClassifier
 )
+
 from src.evaluate import (
     plot_accuracy_vs_k
 )
+
 from src.test import (
     test_imposters
 )
 
 
+def run_pca_pipeline(
+    face_database,
+    labels,
+    k
+):
+    """
+    Execute complete PCA
+    face recognition pipeline.
 
-print(
-    "\nTraining PCA + ANN "
-    "Face Recognition System..."
-)
+    Steps:
+    ------
+    1. Mean face calculation
+    2. Mean-zero transformation
+    3. Covariance matrix
+    4. Eigen decomposition
+    5. Top-k selection
+    6. Eigenface generation
+    7. Face signature creation
+    8. Train/test split
+    9. ANN training
+    10. Accuracy evaluation
 
-dataset_path = "dataset/faces"
+    Parameters
+    ----------
+    face_database :
+    numpy.ndarray
+        Face image matrix.
 
-loader = FaceDataLoader(dataset_path)
+    labels :
+    numpy.ndarray
+        Face labels.
 
-face_database, labels, label_map = (
-    loader.load_dataset()
-)
+    k : int
+        Number of PCA
+        components.
 
-pca = PCAFaceRecognizer(k=75)
-
-pca.label_map = label_map
-
-mean_face = pca.compute_mean_face(
-    face_database
-)
-
-mean_centered_faces = (
-    pca.mean_zero_faces(
-        face_database
-    )
-)
-
-covariance_matrix = (
-    pca.compute_covariance_matrix()
-)
-
-eigenvalues, eigenvectors = (
-    pca.compute_eigen_components(
-        covariance_matrix
-    )
-)
-
-top_k_eigenvectors = (
-    pca.select_top_k_components(
-        eigenvalues,
-        eigenvectors
-    )
-)
-
-eigenfaces = (
-    pca.generate_eigenfaces(
-        top_k_eigenvectors
-    )
-)
-
-show_eigenfaces(
-    eigenfaces
-)
-
-face_signatures = (
-    pca.generate_face_signatures(
+    Returns
+    -------
+    tuple
+        pca
         eigenfaces
-    )
-)
-
-(
-    X_train,
-    X_test,
-    y_train,
-    y_test,
-    scaler
-) = split_dataset(
-    face_signatures,
-    labels
-)
-
-import numpy as np
-
-unique, counts = np.unique(
-    y_train,
-    return_counts=True
-)
-
-unique, counts = np.unique(
-    y_test,
-    return_counts=True
-)
-
-
-ann_classifier = (
-    ANNFaceClassifier()
-)
-
-ann_classifier.train(
-    X_train,
-    y_train
-)
-
-predictions = (
-    ann_classifier.predict(
-        X_test
-    )
-)
-
-accuracy = (
-    ann_classifier.calculate_accuracy(
-        X_test,
-        y_test
-    )
-)
-
-print("\nBest Model Results")
-print("-" * 30)
-
-print(
-    f"Best k Value: "
-    f"{75}"
-)
-
-print(
-    f"Model Accuracy: "
-    f"{accuracy * 100:.2f}%"
-)
-
-k_values = [
-    10,
-    20,
-    30,
-    50,
-    75,
-    100,
-    125,
-    150,
-    200
-]
-
-accuracies = []
-
-print(
-    "\nRunning Accuracy "
-    "vs k Experiment..."
-)
-
-print("-" * 30)
-
-for k in k_values:
+        scaler
+        ann_classifier
+        accuracy
+    """
 
     pca = PCAFaceRecognizer(
         k=k
     )
 
-    mean_face = (
-        pca.compute_mean_face(
-            face_database
-        )
+    pca.label_map = (
+        label_map
     )
 
-    mean_centered_faces = (
-        pca.mean_zero_faces(
-            face_database
-        )
+    pca.compute_mean_face(
+        face_database
+    )
+
+    pca.mean_zero_faces(
+        face_database
     )
 
     covariance_matrix = (
@@ -223,10 +140,113 @@ for k in k_values:
     )
 
     accuracy = (
-        ann_classifier.calculate_accuracy(
+        ann_classifier
+        .calculate_accuracy(
             X_test,
             y_test
         )
+    )
+
+    return (
+        pca,
+        eigenfaces,
+        scaler,
+        ann_classifier,
+        accuracy
+    )
+
+
+print(
+    "\nTraining PCA + "
+    "ANN Face Recognition "
+    "System..."
+)
+
+# Load dataset
+dataset_path = (
+    "dataset/faces"
+)
+
+loader = FaceDataLoader(
+    dataset_path
+)
+
+(
+    face_database,
+    labels,
+    label_map
+) = loader.load_dataset()
+
+# Best k value
+best_k = 75
+
+(
+    pca,
+    eigenfaces,
+    scaler,
+    ann_classifier,
+    accuracy
+) = run_pca_pipeline(
+    face_database,
+    labels,
+    best_k
+)
+
+# Display eigenfaces
+show_eigenfaces(
+    eigenfaces
+)
+
+print(
+    "\nBest Model Results"
+)
+
+print("-" * 30)
+
+print(
+    f"Best k Value: "
+    f"{best_k}"
+)
+
+print(
+    f"Model Accuracy: "
+    f"{accuracy * 100:.2f}%"
+)
+
+# Accuracy vs k
+k_values = [
+    10,
+    20,
+    30,
+    50,
+    75,
+    100,
+    125,
+    150,
+    200
+]
+
+accuracies = []
+
+print(
+    "\nRunning Accuracy "
+    "vs k Experiment..."
+)
+
+print("-" * 30)
+
+for k in k_values:
+
+    (
+        _,
+        _,
+        _,
+        _,
+        accuracy
+    ) = run_pca_pipeline(
+        face_database,
+        labels,
+        k
     )
 
     accuracy_percent = (
@@ -238,16 +258,17 @@ for k in k_values:
     )
 
     print(
-    f"k = {k:<3} "
-    f"→ "
-    f"{accuracy_percent:.2f}%"
-)
+        f"k = {k:<3} "
+        f"→ "
+        f"{accuracy_percent:.2f}%"
+    )
 
 plot_accuracy_vs_k(
     k_values,
     accuracies
 )
 
+# Test unknown faces
 test_imposters(
 
     imposter_folder=
