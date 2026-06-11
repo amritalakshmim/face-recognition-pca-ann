@@ -38,7 +38,6 @@ The model was evaluated using:
 ✔ ANN-based face classification
 ✔ Accuracy vs k-value experiment
 ✔ Imposter detection (**Not Enrolled**)
-✔ Model persistence using Joblib
 ✔ Professional documentation and modular architecture
 
 ---
@@ -56,7 +55,6 @@ The model was evaluated using:
 * OpenCV
 * Matplotlib
 * Scikit-learn
-* Joblib
 
 ### Concepts Used
 
