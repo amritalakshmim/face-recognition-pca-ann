@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>PCA + ANN Face Recognition</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Face Recognition System</h1>
+
+      <p class="subtitle">
+        Upload a face image and let the trained PCA + ANN model identify the
+        person.
+      </p>
+
+      <form action="/predict" method="POST" enctype="multipart/form-data">
+        <div class="upload-box">
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept=".jpg,.jpeg,.png"
+            required
+            hidden
+          />
+
+          <label for="image" class="upload-btn"> 📁 Choose Face Image </label>
+
+          <p id="file-name">No file selected</p>
+          <div class="preview-container">
+            <img id="preview-image" src="#" alt="Preview" />
+          </div>
+        </div>
+
+        <button type="submit">Predict Face</button>
+      </form>
+      {% if error %}
+
+      <div class="error-message">{{ error }}</div>
+
+      {% endif %} {% if image %}
+
+      <div class="result">
+        <img src="/{{ image }}" alt="Uploaded Face" />
+
+        <div class="result-card">
+          <h2>Recognition Result</h2>
+
+          <div
+            class="{% if prediction == 'Not Enrolled' %} fail {% else %} success {% endif %}"
+          >
+            {{ prediction }}
+          </div>
+
+          <div class="confidence">
+            <span>Confidence Score</span>
+
+            <span>{{ confidence }}%</span>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress" style="width: {{ confidence }}%;"></div>
+          </div>
+        </div>
+      </div>
+
+      {% endif %}
+    </div>
+
+    <script>
+      const input = document.getElementById("image");
+      const fileName = document.getElementById("file-name");
+      const preview = document.getElementById("preview-image");
+
+      const form = document.querySelector("form");
+      const button = form.querySelector("button");
+
+      // Show selected image preview
+      input.addEventListener("change", function () {
+        if (this.files.length > 0) {
+          const file = this.files[0];
+
+          fileName.textContent = "Selected: " + file.name;
+
+          preview.src = URL.createObjectURL(file);
+
+          preview.style.display = "block";
+        } else {
+          fileName.textContent = "No file selected";
+
+          preview.style.display = "none";
+        }
+      });
+
+      // Show loading state when submitting
+      form.addEventListener("submit", function () {
+        button.disabled = true;
+
+        button.innerHTML = `
+        <span class="loader"></span>
+        Predicting...
+    `;
+      });
+    </script>
+  </body>
+</html>

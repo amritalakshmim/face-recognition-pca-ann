@@ -1,3 +1,7 @@
+import os
+import joblib
+import numpy as np
+
 from src.data_loader import (
     FaceDataLoader
 )
@@ -212,6 +216,27 @@ print(
     f"Model Accuracy: "
     f"{accuracy * 100:.2f}%"
 )
+
+# ==========================
+# Save trained models
+# ==========================
+
+os.makedirs("models", exist_ok=True)
+
+# Save ANN model
+ann_classifier.save_model("models/ann_model.pkl")
+
+# Save scaler
+joblib.dump(scaler, "models/scaler.pkl")
+
+# Save PCA data
+np.save("models/mean_face.npy", pca.mean_face)
+np.save("models/eigenfaces.npy", pca.eigenfaces)
+
+# Save label map
+joblib.dump(label_map, "models/label_map.pkl")
+
+print("\nModels saved successfully!")
 
 # Accuracy vs k
 k_values = [

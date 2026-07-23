@@ -187,6 +187,15 @@ class ANNFaceClassifier:
                 X_test
             )
         )
+        
+        confidence = float(np.max(probabilities))
+        
+        predicted_class = int(np.argmax(probabilities))
+
+        if confidence < threshold:
+            return None, confidence
+
+        return predicted_class, confidence
 
         predictions = []
 
@@ -198,6 +207,9 @@ class ANNFaceClassifier:
 
             # Reject low confidence
             # predictions
+            print("Confidence:", max_prob)
+            print("Predicted class:", np.argmax(prob))
+            
             if (
                 max_prob <
                 threshold
@@ -208,16 +220,17 @@ class ANNFaceClassifier:
                 )
 
             else:
+                predictions.append(np.argmax(prob))
 
-                predicted_class = (
-                    np.argmax(
-                        prob
-                    )
-                )
+                # predicted_class = (
+                #     np.argmax(
+                #         prob
+                #     )
+                # )
 
-                predictions.append(
-                    predicted_class
-                )
+                # predictions.append(
+                #     predicted_class
+                # )
 
         return predictions
 

@@ -53,6 +53,9 @@ class PCAFaceRecognizer:
         self.mean_face = None
         self.mean_centered_faces = None
 
+        self.top_k_eigenvectors = None
+        self.eigenfaces = None
+
     def compute_mean_face(
         self,
         face_database
@@ -223,13 +226,13 @@ class PCAFaceRecognizer:
             ]
         )
 
-        top_k_eigenvectors = (
+        self.top_k_eigenvectors = (
             sorted_eigenvectors[
                 :, :self.k
             ]
         )
 
-        return top_k_eigenvectors
+        return self.top_k_eigenvectors
 
     def generate_eigenfaces(
         self,
@@ -269,7 +272,8 @@ class PCAFaceRecognizer:
             eigenfaces / norms
         )
 
-        return eigenfaces
+        self.eigenfaces = eigenfaces
+        return self.eigenfaces
 
     def generate_face_signatures(
         self,
