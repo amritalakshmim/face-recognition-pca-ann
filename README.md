@@ -1,4 +1,4 @@
-# 🧠 PCA + ANN Face Recognition System
+# PCA + ANN Face Recognition System
 
 An AI-powered face recognition web application built using **Principal Component Analysis (PCA)** for feature extraction and an **Artificial Neural Network (ANN)** for face classification. The application allows users to upload a face image and predicts the identity of the person along with a confidence score through a clean and responsive web interface.
 
